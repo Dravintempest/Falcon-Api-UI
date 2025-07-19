@@ -1,15 +1,23 @@
 const axios = require('axios')
 
-async function fetchSpotifyInfo(spotifyUrl) {
+module.exports = async (req, res) => {
   try {
-    const id = spotifyUrl.split('/track/')[1]?.split('?')[0]
+    const { url } = req.query
 
-    // Ambil info lagu dari fabdl
+    if (!url || !url.includes('spotify.com/track/')) {
+      return res.status(400).json({
+        status: 400,
+        message: 'Masukkan link Spotify track yang valid'
+      })
+    }
+
+    const id = url.split('/track/')[1]?.split('?')[0]
+
     const fabRes = await axios.get(`https://api.fabdl.com/spotify/track/${id}`)
     const dlRes = await axios.get(`https://api.fabdl.com/spotify/download-mp3/${id}`)
 
     if (fabRes.data && dlRes.data.url) {
-      return {
+      return res.status(200).json({
         creator: 'DravinAPIs',
         status: 200,
         data: {
@@ -20,23 +28,18 @@ async function fetchSpotifyInfo(spotifyUrl) {
           artists: fabRes.data.artists,
           release_date: fabRes.data.release_date
         }
-      }
+      })
     } else {
-      return {
+      return res.status(404).json({
         status: 404,
         message: 'Track tidak ditemukan'
-      }
+      })
     }
-
   } catch (err) {
-    return {
+    return res.status(500).json({
       status: 500,
       message: 'Terjadi kesalahan',
       error: err.message
-    }
+    })
   }
 }
-
-// Contoh penggunaan
-const link = 'https://open.spotify.com/track/0WfDKnHOuN1xX8H9XrM6f0'
-fetchSpotifyInfo(link).then(console.log)
