@@ -1,27 +1,57 @@
-module.exports = function (app) {
-  app.get('/downloader/soundcloud', async (req, res) => {
-    const { url } = req.query;
-    if (!url) {
-      return res.status(400).json({ status: false, error: 'URL is required' });
-    }
+import axios from 'axios'
 
-    try {
-      const response = await fetch(`https://api.soundcloudrip.com/info?url=${encodeURIComponent(url)}`);
-      const json = await response.json();
-
-      if (!json.success) throw new Error(json.message || 'Failed to download');
-
-      res.status(200).json({
-        status: true,
-        result: {
-          title: json.title,
-          author: json.author,
-          thumbnail: json.thumbnail,
-          streamUrl: json.download_url
+async function SoundCloud(trackUrl) {
+  try {
+    const response = await axios.post(
+      'https://api.downloadsound.cloud/track',
+      { url: trackUrl },
+      {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+          'Accept': 'application/json, text/plain, */*',
+          'Referer': 'https://downloadsound.cloud/',
+          'Origin': 'https://downloadsound.cloud/',
+          'Content-Type': 'application/json',
         }
-      });
-    } catch (err) {
-      res.status(500).json({ status: false, error: err.message });
+      }
+    )
+
+    const data = response.data
+
+    const output = {
+      url: data?.url || null,
+      title: data?.title || null,
+      author: {
+        id: data?.author?.id,
+        username: data?.author?.username,
+        first_name: data?.author?.first_name,
+        last_name: data?.author?.last_name,
+        avatar_url: data?.author?.avatar_url,
+        city: data?.author?.city,
+        country_code: data?.author?.country_code,
+        description: data?.author?.description,
+        followers_count: data?.author?.followers_count,
+        followings_count: data?.author?.followings_count,
+        likes_count: data?.author?.likes_count,
+        playlist_likes_count: data?.author?.playlist_likes_count,
+        permalink_url: data?.author?.permalink_url,
+        uri: data?.author?.uri,
+        verified: data?.author?.verified,
+        kind: data?.author?.kind,
+        created_at: data?.author?.created_at,
+        comments_count: data?.author?.comments_count
+      },
+      thumbnail: data?.imageURL
     }
-  });
-};
+
+    console.log(output)
+    return output
+
+  } catch (error) {
+    console.error('emror:', error?.response?.status, error?.response?.data || error.message)
+    return null
+  }
+}
+
+// tes
+SoundCloud('https://m.soundcloud.com/hoang-phuc-195492892/mu-a-ro-i-va-o-pho-ng-remix')
