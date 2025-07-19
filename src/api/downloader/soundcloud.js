@@ -1,57 +1,106 @@
-import axios from 'axios'
+const axios = require('axios');
 
-async function SoundCloud(trackUrl) {
-  try {
-    const response = await axios.post(
-      'https://api.downloadsound.cloud/track',
-      { url: trackUrl },
-      {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-          'Accept': 'application/json, text/plain, */*',
-          'Referer': 'https://downloadsound.cloud/',
-          'Origin': 'https://downloadsound.cloud/',
-          'Content-Type': 'application/json',
-        }
-      }
-    )
-
-    const data = response.data
-
-    const output = {
-      url: data?.url || null,
-      title: data?.title || null,
-      author: {
-        id: data?.author?.id,
-        username: data?.author?.username,
-        first_name: data?.author?.first_name,
-        last_name: data?.author?.last_name,
-        avatar_url: data?.author?.avatar_url,
-        city: data?.author?.city,
-        country_code: data?.author?.country_code,
-        description: data?.author?.description,
-        followers_count: data?.author?.followers_count,
-        followings_count: data?.author?.followings_count,
-        likes_count: data?.author?.likes_count,
-        playlist_likes_count: data?.author?.playlist_likes_count,
-        permalink_url: data?.author?.permalink_url,
-        uri: data?.author?.uri,
-        verified: data?.author?.verified,
-        kind: data?.author?.kind,
-        created_at: data?.author?.created_at,
-        comments_count: data?.author?.comments_count
-      },
-      thumbnail: data?.imageURL
+class Nakanime {
+    constructor() {
+        this.client = axios.create({
+            baseURL: 'https://anime.nakanime.my.id/api/anime',
+            headers: {
+                accept: 'application/json, text/plain, */*',
+                'accept-encoding': 'gzip',
+                'user-agent': 'okhttp/4.9.2'
+            }
+        });
     }
-
-    console.log(output)
-    return output
-
-  } catch (error) {
-    console.error('emror:', error?.response?.status, error?.response?.data || error.message)
-    return null
-  }
+    
+    get = async function (order = 'latest', page = 1) {
+        try {
+            const _order = ['title', 'latest', 'popular', 'rating', 'update', 'titlereverse'];
+            if (!_order.includes(order)) throw new Error(`Available orders: ${_order.join(', ')}`);
+            
+            const { data } = await this.client('/all/', {
+                params: {
+                    order,
+                    page
+                }
+            });
+            
+            return data;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+    
+    genre = async function (genre = 'action', page = 1) {
+        try {
+            const { data: g } = await this.client('/genre');
+            const _genre = g.data.map(c => c.slug);
+            if (!_genre.includes(genre)) throw new Error(`Available genres: ${_genre.join(', ')}`);
+            
+            const { data } = await this.client('/bygenres/', {
+                params: {
+                    genre,
+                    page
+                }
+            });
+            
+            return data;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+    
+    search = async function (query) {
+        try {
+            if (!query) throw new Error('Query is required');
+            
+            const { data } = await this.client('/search/', {
+                params: {
+                    keyword: query
+                }
+            });
+            
+            return data;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+    
+    getDetail = async function (url) {
+        try {
+            const match = url.match(/^https:\/\/api\.nakanime\.my\.id\/anime\/([^\/]+)\/?$/);
+            if (!match) throw new Error('Invalid url');
+            
+            const { data } = await this.client({
+                params: {
+                    name: match[1]
+                }
+            });
+            
+            return data;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+    
+    getData = async function (url) {
+        try {
+            const match = url.match(/^https:\/\/api\.nakanime\.my\.id\/([^\/]+episode-[^\/]+)\/?$/);
+            if (!match) throw new Error('Invalid url');
+            
+            const { data } = await this.client('/data/', {
+                params: {
+                    slug: match[1]
+                }
+            });
+            
+            return data;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
 }
 
-// tes
-SoundCloud('https://m.soundcloud.com/hoang-phuc-195492892/mu-a-ro-i-va-o-pho-ng-remix')
+// Usage:
+const n = new Nakanime();
+const resp = await n.search('konosuba');
+console.log(resp);
