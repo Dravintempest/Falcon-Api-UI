@@ -1,45 +1,62 @@
-const axios = require('axios')
+/* 
+• Scrape SoundCloud Downloader
+• Author : SaaOfc's
+*/
 
-module.exports = async (req, res) => {
+import axios from 'axios'
+
+async function SoundCloud(trackUrl) {
   try {
-    const { url } = req.query
-
-    if (!url || !url.includes('spotify.com/track/')) {
-      return res.status(400).json({
-        status: 400,
-        message: 'Masukkan link Spotify track yang valid'
-      })
-    }
-
-    const id = url.split('/track/')[1]?.split('?')[0]
-
-    const fabRes = await axios.get(`https://api.fabdl.com/spotify/track/${id}`)
-    const dlRes = await axios.get(`https://api.fabdl.com/spotify/download-mp3/${id}`)
-
-    if (fabRes.data && dlRes.data.url) {
-      return res.status(200).json({
-        creator: 'DravinAPIs',
-        status: 200,
-        data: {
-          title: fabRes.data.title,
-          thumbnail: fabRes.data.thumbnail,
-          url: dlRes.data.url,
-          duration: fabRes.data.duration_ms,
-          artists: fabRes.data.artists,
-          release_date: fabRes.data.release_date
+    const response = await axios.post(
+      'https://api.downloadsound.cloud/track',
+      { url: trackUrl },
+      {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+          'Accept': 'application/json, text/plain, */*',
+          'Referer': 'https://downloadsound.cloud/',
+          'Origin': 'https://downloadsound.cloud/',
+          'Content-Type': 'application/json',
         }
-      })
-    } else {
-      return res.status(404).json({
-        status: 404,
-        message: 'Track tidak ditemukan'
-      })
+      }
+    )
+
+    const data = response.data
+
+    const output = {
+      url: data?.url || null,
+      title: data?.title || null,
+      author: {
+        id: data?.author?.id,
+        username: data?.author?.username,
+        first_name: data?.author?.first_name,
+        last_name: data?.author?.last_name,
+        avatar_url: data?.author?.avatar_url,
+        city: data?.author?.city,
+        country_code: data?.author?.country_code,
+        description: data?.author?.description,
+        followers_count: data?.author?.followers_count,
+        followings_count: data?.author?.followings_count,
+        likes_count: data?.author?.likes_count,
+        playlist_likes_count: data?.author?.playlist_likes_count,
+        permalink_url: data?.author?.permalink_url,
+        uri: data?.author?.uri,
+        verified: data?.author?.verified,
+        kind: data?.author?.kind,
+        created_at: data?.author?.created_at,
+        comments_count: data?.author?.comments_count
+      },
+      thumbnail: data?.imageURL
     }
-  } catch (err) {
-    return res.status(500).json({
-      status: 500,
-      message: 'Terjadi kesalahan',
-      error: err.message
-    })
+
+    console.log(output)
+    return output
+
+  } catch (error) {
+    console.error('emror:', error?.response?.status, error?.response?.data || error.message)
+    return null
   }
 }
+
+// tes
+SoundCloud('https://m.soundcloud.com/hoang-phuc-195492892/mu-a-ro-i-va-o-pho-ng-remix')
