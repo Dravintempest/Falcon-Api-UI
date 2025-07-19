@@ -57,6 +57,15 @@
           "params": {
             "q": "Search query"
           }
+        },
+        {
+          "name": "SoundCloud",
+          "desc": "SoundCloud music downloader",
+          "path": "/downloader/soundcloud?url=",
+          "status": "ready",
+          "params": {
+            "url": "SoundCloud track URL"
+          }
         }
       ]
     }
