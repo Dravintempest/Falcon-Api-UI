@@ -59,15 +59,18 @@
           }
         },
         {
-          "name": "SoundCloud",
-          "desc": "SoundCloud music downloader",
-          "path": "/downloader/soundcloud?url=",
-          "status": "ready",
-          "params": {
-            "url": "SoundCloud track URL"
-          }
-        }
-      ]
-    }
+  "name": "Downloader",
+  "items": [
+    {
+      "name": "SoundCloud",
+      "desc": "Download track from SoundCloud",
+      "path": "/downloader/soundcloud?url=",
+      "status": "ready",
+      "params": {
+        "url": "SoundCloud track URL"
+         }
+       }
+     ]
+   }
   ]
 }
