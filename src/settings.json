@@ -59,20 +59,6 @@
           }
         }
       ]
-    },
-    {
-      "name": "Spotify Tools",
-      "items": [
-        {
-          "name": "Spotify MP3 Downloader",
-          "desc": "Download lagu dari Spotify dengan MP3 link dan metadata lengkap",
-          "path": "/spotifydl?url=",
-          "status": "ready",
-          "params": {
-            "url": "Link Spotify track, contoh: https://open.spotify.com/track/75dfb8eef458a53cae6b19b6f5098249"
-          }
-        }
-      ]
     }
   ]
 }
