@@ -71,6 +71,16 @@
           "params": {
             "url": "SoundCloud track URL"
           }
+        },
+        {
+          "name": "YouTube MP4",
+          "desc": "YouTube video downloader using ytmp4.fit API",
+          "path": "/downloader/youtube?url=&quality=",
+          "status": "ready",
+          "params": {
+            "url": "YouTube video URL (required)",
+            "quality": "Video quality (optional, default: 720p)"
+          }
         }
       ]
     }
